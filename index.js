@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import path from 'path'
 import http from 'http'
+import { Server } from "socket.io";
 // Route importation
 import corsOptions from "./config/corsOptions.js";
 import AuthRoute from './routes/authRoute.js'
@@ -23,6 +24,16 @@ const PORT = process.env.PORT || 3000
 // app.set("redis", redisClient)
 const app = express()
 const server = http.createServer(app)
+
+
+
+ // initialisation du socket Server
+ export const io = new Server(server,{
+  cors : {
+      origin :'*'
+  }
+});
+
 app.use(compression())
 app.use(morgan("dev"))
 app.use(express.json())
@@ -45,7 +56,12 @@ app.get('/uploads/*',(req,res)=>{
     res.sendFile(path.resolve(`./${req.originalUrl}`));
   })
 
+// socket.io server
+io.on('connection',socket =>{
+  console.log(socket.id) 
+})
 
+app.set("socketio",io)
 
 
 

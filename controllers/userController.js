@@ -7,8 +7,10 @@ import Offer from '../models/offerModel.js'
 import Rating from '../models/ratingModel.js'
 import Reservation from '../models/reservationModel.js'
 import Payment from '../models/paymentModel.js'
-import { generateNotificationContent } from "../utils/generateText.js"
+import Message from '../models/messageModel.js'
+import { generateNotificationContent, generateNotificationContentForPayment } from "../utils/generateText.js"
 import { notifcationsBase } from "../utils/Variable.js"
+import mongoose from "mongoose"
 //@desc  GET all user notifications 
 //@right  PUBLIC
 //@ route GET /api/users/:userId/notification
@@ -86,8 +88,52 @@ const getMyReservations = asyncHandler( async  (req, res) => {
   try {
     
 
-    const reservations = await Reservation.find().where("askerId").equals(req.params.userId).populate("providerId")
+    const reservations = await Reservation.find().where("askerId").equals(req.params.userId).populate("providerId").populate("offerId")
      res.status(200).json({ reservations})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+})
+//@desc  get My Messages from reservation 
+//@right  PUBLIC
+//@ route GET  /api/users/reservations/:reservationId/messages
+
+const getReservationMessages = asyncHandler( async  (req, res) => {
+  
+
+  try {
+    
+
+    const messages = await Message.find().where("reservationId").equals(req.params.reservationId).sort({ date : 1})
+     res.status(200).json({ messages})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+})
+//@desc  get My Messages from reservation 
+//@right  PUBLIC
+//@ route GET  /api/users/reservations/:reservationId/messages
+
+const saveReservationMessages = asyncHandler( async  (req, res) => {
+  const {senderId,content} = req.body
+const message = {
+  senderId,
+  content,
+   reservationId : req.params.reservationId
+}
+  try {
+    
+    const io = req.app.get("socketio")
+
+    io.emit("messageSent",{
+      reservationId : req.params.reservationId,
+      message
+    })
+   
+    await Message.create( message)
+     res.status(201).json({ message : "message sent"})
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Internal server error' });
@@ -98,7 +144,7 @@ const getMyReservations = asyncHandler( async  (req, res) => {
 //@ route POST /api/users/services/
 
 const CreateService = asyncHandler( async  (req, res) => {
-  const {askerId,location,amount,providerId,startTime,serviceDate,endTime,notificationType,askerName} =req.body
+  const {askerId,location,amount,providerId,startTime,serviceDate,endTime,notificationType,askerName,offerId} =req.body
 console.log(req.body)
   try {
     // const { error } = validateCreateOffer(req.body);
@@ -121,7 +167,8 @@ console.log(req.body)
         amount : amount,
         startTime : startTime,
         endTime : endTime,
-        Date : serviceDate
+        Date : serviceDate,
+        offerId : offerId
        })
        
     // send notfication
@@ -140,6 +187,74 @@ console.log(req.body)
 })
 
 
+//@desc  create payment 
+//@right  PUBLIC
+//@ route Put /api/users/reservations/:reservationId/payment
+const createPayment = asyncHandler(async(req,res)=>{
+try {
+  const reservation = await Reservation.findById(req.params.reservationId)
+  await Payment.create({
+      receiverId  : req.body.receiverId,
+      senderId : req.body.senderId,
+      amount : req.body.amount,
+      type : req.body.type
+  })
+  // change Reservation
+  reservation.status = 2
+  await Notification.create({
+    title : notifcationsBase[3].title,
+    type : notifcationsBase[3].id,
+    userId : req.body.receiverId,
+    content : generateNotificationContentForPayment(req.body.askerName,req.body.amount,req.body.providerName)
+  })
+  await reservation.save() 
+  res.status(201).json({message : "Payment made successfully"})
+} catch (error) {
+  console.log(error)
+  res.status(500).json({message : error})
+}
+})
+//@desc  create reating 
+//@right  PUBLIC
+//@ route Put /api/users/offers/:offerId
+const createRating = asyncHandler(async (req, res) => {
+  try {
+    const offer = await Offer.findById(req.params.offerId);
+    await Rating.create({
+      comment: req.body.comment,
+      rating: req.body.rating,
+      user: req.body.userId,
+      offer: req.params.offerId,
+    });
+
+    // Calculate the sum of ratings and the total number of ratings using aggregation pipeline
+    const offerId = req.params.offerId;
+    
+    const ratings = await Rating.find({ offer: offerId });
+    const totalRatings = ratings.length;
+    const sumOfRatings = ratings.reduce((accumulator, rating) => accumulator + rating.rating, 0);
+
+   
+
+    offer.rating = (sumOfRatings + req.body.rating) / (totalRatings + 1);
+
+    await offer.save();
+
+    await Notification.create({
+      userId : req.body.providerId,
+      title: notifcationsBase[1].title,
+      type: notifcationsBase[1].id,
+      content: `Dear ${req.body.providerName}, you received a ${req.body.rating} stars for the work you did for ${req.body.askerName}.`,
+    });
+
+    res.status(201).json({ message: "Rating made successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
-export {getNotification,getPopularsServices,getServices,getOneService,CreateService,getMyReservations}
+
+export {getNotification,getPopularsServices,getServices,getOneService,CreateService,getMyReservations,createRating,
+  getReservationMessages,saveReservationMessages,createPayment}

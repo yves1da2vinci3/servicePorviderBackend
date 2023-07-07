@@ -10,11 +10,11 @@ const ratingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  photoUrl: {
-    type:String ,
-    required: true
+  rating : {
+ type : Number,
+ required: true,
+ default : 0
   },
-
   offer: {
     type:  mongoose.Schema.Types.ObjectId,
     ref : "Offer",

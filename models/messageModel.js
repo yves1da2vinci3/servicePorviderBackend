@@ -15,11 +15,6 @@ const messageSchema = new mongoose.Schema({
     ref: 'Reservation', // Assuming you have a User model to reference the user
     required: true
   },
-
-  isServiceProvider: {
-    type: Boolean,
-    default: false
-  },
   date: {
     type: Date,
     default: Date.now

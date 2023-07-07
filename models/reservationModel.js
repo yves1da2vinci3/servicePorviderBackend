@@ -10,6 +10,11 @@ const ReservationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  offerId : {
+    type: mongoose.Schema.Types.ObjectId,
+   ref : "Offer",
+   required: true
+  },
   amount: {
     type: Number,
     required: true,

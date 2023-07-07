@@ -5,6 +5,10 @@ import User from '../models/userModel.js'
 import Notification from '../models/notificationModel.js'
 import Offer from '../models/offerModel.js'
 import Rating from '../models/ratingModel.js'
+import Reservation from '../models/reservationModel.js'
+import Payment from '../models/paymentModel.js'
+import { generateNotificationContent } from "../utils/generateText.js"
+import { notifcationsBase } from "../utils/Variable.js"
 //@desc  GET all user notifications 
 //@right  PUBLIC
 //@ route GET /api/users/:userId/notification
@@ -72,8 +76,70 @@ const getOneService = asyncHandler( async  (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 })
+//@desc  get My reservations 
+//@right  PUBLIC
+//@ route GET  /api/users/reservations/:userId
+
+const getMyReservations = asyncHandler( async  (req, res) => {
+  
+
+  try {
+    
+
+    const reservations = await Reservation.find().where("askerId").equals(req.params.userId).populate("providerId")
+     res.status(200).json({ reservations})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+})
+//@desc  create one service reservation
+//@right  PUBLIC
+//@ route POST /api/users/services/
+
+const CreateService = asyncHandler( async  (req, res) => {
+  const {askerId,location,amount,providerId,startTime,serviceDate,endTime,notificationType,askerName} =req.body
+console.log(req.body)
+  try {
+    // const { error } = validateCreateOffer(req.body);
+    //     console.log(error)
+    //     if (error) {
+    //         const errorMessage = parseValidationError(error)
+     
+
+    //      return res.status(400).json({
+    //        message: errorMessage.message,
+    //      });
+    //    }
+
+       const user = await User.findById(providerId)
+
+     await Reservation.create({
+        askerId :askerId,
+        location :location,
+        providerId : providerId,
+        amount : amount,
+        startTime : startTime,
+        endTime : endTime,
+        Date : serviceDate
+       })
+       
+    // send notfication
+      await Notification.create({
+        userId : providerId,
+        title : notifcationsBase[notificationType].title,
+        type : notificationType,
+        content : generateNotificationContent(user,askerName)
+       })
+       res.status(201).json({ message: 'reservation made successfully'})
+    
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+})
 
 
 
 
-export {getNotification,getPopularsServices,getServices,getOneService}
+export {getNotification,getPopularsServices,getServices,getOneService,CreateService,getMyReservations}

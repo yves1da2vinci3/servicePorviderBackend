@@ -5,6 +5,10 @@ import User from '../models/userModel.js'
 import fs from 'fs'
 import Offer from "../models/offerModel.js"
 import { validateCreateOffer } from "../validation/providerValidator.js"
+import Reservation from "../models/reservationModel.js"
+import Notification from "../models/notificationModel.js"
+import { notifcationsBase } from "../utils/Variable.js"
+import { generateNotificationContentToAnswerReservation } from "../utils/generateText.js"
 
 //@desc  create a new offer 
 //@right  PUBLIC
@@ -79,10 +83,53 @@ const getOneOffer = asyncHandler( async (req,res)=> {
         res.status(500).json({ error: error })
     }
 })
+//@desc  get reservation 
+//@right  PUBLIC
+//@ route  GET /api/providers/reservation/:userId/
+
+
+const getReservations = asyncHandler( async (req,res)=> {
+    console.log("request body :",req.body)
+    try {
+       const reservations = await Reservation.find().where("providerId").equals(req.params.userId).populate("askerId")
+       
+      console.log(reservations)
+       res.status(200).json({reservations })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error })
+    }
+})
+//@desc  get a new offer 
+//@right  PUBLIC
+//@ route  GET /api/providers/reservation/:userId/
+
+
+const answerReservation = asyncHandler( async (req,res)=> {
+    console.log("request body :",req.body)
+    const {providerName} = req.body
+    try {
+      const reservation = await Reservation.findById(req.params.reservationId).populate("askerId")
+       reservation.status =  req.query.answer === "accept" ? 1 : 3
+      await reservation.save()
+
+      // send notfication
+      await Notification.create({
+        userId : reservation.askerId._id,
+        title : notifcationsBase[req.query.answer === "accept"? 0 : 4 ].title,
+        type : req.query.answer === "accept" ? 1 :5,
+        content : generateNotificationContentToAnswerReservation(reservation.askerId,req.query.answer,reservation.Date,providerName)
+       })
+       res.status(201).json({message : "reservation answered successfully" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error })
+    }
+})
 
 
 
 
 
 // export {getReservations,ModifyReservation,getStats,CreateOffer,modifyOffer,getOneOffer}
-export {CreateOffer,modifyOffer,getOneOffer}
+export {CreateOffer,modifyOffer,getOneOffer,getReservations,answerReservation}

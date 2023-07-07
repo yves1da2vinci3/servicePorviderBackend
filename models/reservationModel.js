@@ -17,23 +17,25 @@ const ReservationSchema = new mongoose.Schema({
   status: {
     type: Number,
     required: true,
+    default : 0
   },
   providerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Assuming you have a User model to reference the user
     required: true
   },
-
-  isServiceProvider: {
-    type: Boolean,
-    default: false
-  },
-  endTime: {
+  Date: {
     type: Date,
    
   },
+  endTime: {
+    type: String,
+   required : true
+  },
   startTime: {
-    type: Date,
+    type: String,
+   required : true
+
   }
 });
 

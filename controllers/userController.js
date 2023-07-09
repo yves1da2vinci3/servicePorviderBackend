@@ -11,6 +11,7 @@ import Message from '../models/messageModel.js'
 import { generateNotificationContent, generateNotificationContentForPayment } from "../utils/generateText.js"
 import { notifcationsBase } from "../utils/Variable.js"
 import mongoose from "mongoose"
+import UserFavourite from "../models/userFavouriteModel.js"
 //@desc  GET all user notifications 
 //@right  PUBLIC
 //@ route GET /api/users/:userId/notification
@@ -201,6 +202,9 @@ try {
   })
   // change Reservation
   reservation.status = 2
+  const offer = await Offer.findById(reservation.offerId)
+  offer.reservationNumber = reservation.reservationNumber +1
+  await offer.save()
   await Notification.create({
     title : notifcationsBase[3].title,
     type : notifcationsBase[3].id,
@@ -214,6 +218,7 @@ try {
   res.status(500).json({message : error})
 }
 })
+
 //@desc  create reating 
 //@right  PUBLIC
 //@ route Put /api/users/offers/:offerId
@@ -253,8 +258,66 @@ const createRating = asyncHandler(async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+//@desc  create reating 
+//@right  PUBLIC
+//@ route POST /api/users/favourites/:userId
+const addFavourite = asyncHandler(async (req, res) => {
+  const { offerId} = req.body
+  try {
+    const userFavorites = await UserFavourite.findOne({ userId : req.params.userId }).populate('Favourites.offer');
+    if(!userFavorites) {
+      await UserFavourite.create({ userId : req.params.userId, Favourites : [{offer :offerId }]})
+    }else{
+       userFavorites.Favourites.push({ offer : offerId})
+       await userFavorites.save()
+    }
+  
+
+    res.status(201).json({ message: "favourite made successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//@desc  remove favourite reating 
+//@right  PUBLIC
+//@ route PUT /api/users/favourites/:userId
+const removeFavourite = asyncHandler(async (req, res) => {
+  const { offerIds } = req.body;
+
+  try {
+    const userFavorites = await UserFavourite.findOne({ userId: req.params.userId });
+
+    userFavorites.Favourites = userFavorites.Favourites.filter(
+      (favorite) => !offerIds.includes(favorite.offer._id.toString())
+    );
+
+    await userFavorites.save();
+
+
+    res.status(201).json({ message: "Favourite removed successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+//@desc  remove favourite reating 
+//@right  PUBLIC
+//@ route PUT /api/users/favourites/:userId
+const getAllFavourites = asyncHandler(async (req, res) => {
+
+  try {
+    const userFavorites = await UserFavourite.findOne({ userId: req.params.userId }).populate('Favourites.offer');
+
+    res.status(200).json({ userFavorites });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
 
-export {getNotification,getPopularsServices,getServices,getOneService,CreateService,getMyReservations,createRating,
+export {getNotification,getPopularsServices,getServices,getOneService,CreateService,getMyReservations,createRating,addFavourite,removeFavourite,getAllFavourites,
   getReservationMessages,saveReservationMessages,createPayment}

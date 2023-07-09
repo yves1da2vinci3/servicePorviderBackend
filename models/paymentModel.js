@@ -19,7 +19,11 @@ const paymentSchema = new mongoose.Schema({
   type: {
     type: Number,
     default: 1
-  }
+  },
+  Date: {
+    type: Date,
+     default : Date.now()
+  },
 });
 
 const Payment = mongoose.model('Payment', paymentSchema);

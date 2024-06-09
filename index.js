@@ -10,6 +10,7 @@ import corsOptions from "./config/corsOptions.js";
 import AuthRoute from './routes/authRoute.js'
 import userRoute from './routes/userRoute.js'
 import providerRoute from './routes/ProviderRoute.js'
+import uploadRoute from './routes/uploadRoute.js'
 import connectToDB from "./config/database.js";
 
 
@@ -48,6 +49,7 @@ connectToDB()
 app.use("/api/auth",AuthRoute)
 app.use("/api/users",userRoute)
 app.use("/api/providers",providerRoute)
+app.use("/api/upload",uploadRoute)
 
 
 

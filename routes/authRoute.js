@@ -3,7 +3,7 @@ import {uploadSingle } from '../middleware/uploadHelper.js'
 const router = Router()
 import {login, register,editUser} from '../controllers/authController.js'
 
-router.post('/register', uploadSingle("./uploads/users/"), register);
+router.post('/register', register);
 router.post('/login', login);
 
 router.put('/:userId/edit',uploadSingle("./uploads/users/"), editUser);

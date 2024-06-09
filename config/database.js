@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const localDBUrl = 'mongodb://localhost:27017/serviceProviderDB';
+const localDBUrl = 'mongodb://mongo_USER:mongo_password@localhost:27017/';
 
 // Connect to MongoDB
 const connectToDB = async () => {

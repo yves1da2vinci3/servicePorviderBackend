@@ -11,6 +11,12 @@ export function validateRegister(body) {
         'string.max': 'Full name should have a maximum length of {#limit}',
         'any.required': 'Full name is required',
       }),
+    imageUrl: Joi.string().required()
+      .messages({
+        'string.base': 'image url should be a string',
+        'string.empty': 'image url cannot be empty',
+        'any.required': 'image url is required',
+      }),
     email: Joi.string().email().required()
       .messages({
         'string.base': 'Email should be a string',

@@ -1,4 +1,4 @@
-var whitelist = ["http://127.0.0.1:5174","http://127.0.0.1:5173"]
+var whitelist = ["http://127.0.0.1:5174","http://127.0.0.1:5173",'http://192.168.100.4']
 var corsOptions = {
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
     allowedHeaders: [

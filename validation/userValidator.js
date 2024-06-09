@@ -30,7 +30,7 @@ export function validateRegister(body) {
         'string.email': 'Invalid email format',
         'any.required': 'Email is required',
       }),
-    phoneNumber: Joi.string().min(8).required()
+    phoneNumber: Joi.string().min(10).required()
       .messages({
         'string.base': 'Phone number should be a string',
         'string.empty': 'Phone number cannot be empty',

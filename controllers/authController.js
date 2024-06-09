@@ -51,17 +51,17 @@ const register = asyncHandler(async (req, res) => {
 //@ route   PUT  /api/auth/register
 
 const editUser = asyncHandler(async (req, res) => {
-  const { fullName, phoneNumber } = req.body;
+  const { fullName, phoneNumber,imageUrl } = req.body;
   console.log("request body :", req.body);
   try {
     const user = await User.findById(req.params.userId);
-    if (req.body.file) {
+    if (req.body.imageUrl) {
       deleteFile(`.${user.photoUrl}`);
       user.fullname = fullName || user.fullname;
       user.phoneNumber = req.body.phoneNumber
         ? Number(phoneNumber)
         : user.phoneNumber;
-      user.photoUrl = `/uploads/users/${req.file.filename}`;
+      user.photoUrl = imageUrl;
       //  delete image
       await user.save();
     } else {

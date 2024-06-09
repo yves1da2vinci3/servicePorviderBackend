@@ -1,11 +1,10 @@
 import { Router } from "express";
-import {uploadSingle } from '../middleware/uploadHelper.js'
 const router = Router()
 import { CreateOffer, getOneOffer, modifyOffer,getReservations, answerReservation,getStats} from '../controllers/ProviderController.js'
 import { getReservationMessages, saveReservationMessages } from "../controllers/userController.js";
 
-router.post('/offers', uploadSingle("./uploads/offers/"), CreateOffer);
-router.put('/offers/:offerId', uploadSingle("./uploads/offers/"), modifyOffer);
+router.post('/offers', CreateOffer);
+router.put('/offers/:offerId', modifyOffer);
 router.get('/offers/:userId/users', getOneOffer);
 router.get('/reservations/:userId', getReservations);
 router.put('/reservations/:reservationId', answerReservation);

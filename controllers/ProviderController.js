@@ -18,7 +18,7 @@ import Payment from "../models/paymentModel.js"
 
 
 const CreateOffer = asyncHandler( async (req,res)=> {
-    const { userId,title,description,type,hourRate} = req.body
+    const { userId,title,description,type,hourRate,imageUrl} = req.body
     console.log("request body :",req.body)
     try {
         const { error } = validateCreateOffer(req.body);
@@ -37,7 +37,7 @@ const CreateOffer = asyncHandler( async (req,res)=> {
         title: title,
         description: description,
         type : Number(type) ,
-        photoUrl  : `/uploads/offers/${req.file.filename}`
+        photoUrl  : imageUrl
        })
        res.status(201).json({message: "offer created successfully" })
     } catch (error) {
@@ -51,7 +51,7 @@ const CreateOffer = asyncHandler( async (req,res)=> {
 
 
 const modifyOffer = asyncHandler( async (req,res)=> {
-    const { title,description,type,hourRate} = req.body
+    const { title,description,type,hourRate,imageUrl} = req.body
     console.log("request body :",req.body)
     try {
         const offer = await Offer.findById(req.params.offerId)
@@ -59,7 +59,7 @@ const modifyOffer = asyncHandler( async (req,res)=> {
        offer.title = title || offer.title
        offer.description = description || offer.description
        offer.hourRate = hourRate ?Number(hourRate) : offer.hourRate
-       offer.photoUrl =  req.file ? `/uploads/offers/${req.file.filename}` : offer.photoUrl
+       offer.photoUrl =  req.file ? imageUrl : offer.photoUrl
       await offer.save()
        res.status(201).json({message: "offer modified successfully" })
     } catch (error) {

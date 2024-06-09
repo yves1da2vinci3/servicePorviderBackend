@@ -6,3 +6,10 @@ export const notifcationsBase = [
     { id :  5, iconName : "close-outline", title :"Book refused" },
   ]
   
+
+export const reservationStatus = {
+  PENDING : 0,
+  ACCEPTED : 1,
+  REJECTED : 3,
+  COMPLETED : 2,
+}

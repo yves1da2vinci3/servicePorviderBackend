@@ -309,7 +309,6 @@ const getAllFavourites = asyncHandler(async (req, res) => {
 
   try {
     const userFavorites = await UserFavourite.findOne({ userId: req.params.userId }).populate('Favourites.offer');
-
     res.status(200).json({ userFavorites });
   } catch (error) {
     console.log(error);

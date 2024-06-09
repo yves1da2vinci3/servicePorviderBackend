@@ -7,7 +7,7 @@ import Offer from "../models/offerModel.js"
 import { validateCreateOffer } from "../validation/providerValidator.js"
 import Reservation from "../models/reservationModel.js"
 import Notification from "../models/notificationModel.js"
-import { notifcationsBase } from "../utils/Variable.js"
+import { notifcationsBase, reservationStatus } from "../utils/Variable.js"
 import { generateNotificationContentToAnswerReservation } from "../utils/generateText.js"
 import mongoose from "mongoose"
 import Payment from "../models/paymentModel.js"
@@ -112,7 +112,7 @@ const answerReservation = asyncHandler( async (req,res)=> {
     const {providerName} = req.body
     try {
       const reservation = await Reservation.findById(req.params.reservationId).populate("askerId")
-       reservation.status =  req.query.answer === "accept" ? 1 : 3
+       reservation.status =  req.query.answer === "accept" ? reservationStatus.ACCEPTED : reservationStatus.REJECTED 
       await reservation.save()
 
       // send notfication

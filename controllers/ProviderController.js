@@ -15,6 +15,9 @@ import { generateNotificationContentToAnswerReservation } from "../utils/generat
 import mongoose from "mongoose";
 import Payment from "../models/paymentModel.js";
 import deleteFile from "../utils/deleteFile.js";
+import sendPushNotification, {
+  generatePushNotificationMessge,
+} from "../utils/ExpoSendPushNotification.js";
 
 //@desc  create a new offer
 //@right  PUBLIC
@@ -129,17 +132,24 @@ const answerReservation = asyncHandler(async (req, res) => {
     await reservation.save();
 
     // send notfication
+    const notficationMessage = generateNotificationContentToAnswerReservation(
+      reservation.askerId,
+      req.query.answer,
+      reservation.Date,
+      providerName
+    );
     await Notification.create({
       userId: reservation.askerId._id,
       title: notifcationsBase[req.query.answer === "accept" ? 0 : 4].title,
       type: req.query.answer === "accept" ? 1 : 5,
-      content: generateNotificationContentToAnswerReservation(
-        reservation.askerId,
-        req.query.answer,
-        reservation.Date,
-        providerName
-      ),
+      content: notficationMessage,
     });
+    const pushMessage = generatePushNotificationMessge(
+      notifcationsBase[req.query.answer === "accept" ? 0 : 4].title,
+      notficationMessage,
+      reservation.askerId.pushToken
+    );
+    sendPushNotification([pushMessage]);
     res.status(201).json({ message: "reservation answered successfully" });
   } catch (error) {
     console.log(error);

@@ -19,6 +19,7 @@ const register = asyncHandler(async (req, res) => {
     isServiceProvider,
     phoneNumber,
     imageUrl,
+    pushToken
   } = req.body;
   console.log("request body :", req.body);
   try {

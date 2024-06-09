@@ -203,7 +203,7 @@ try {
   // change Reservation
   reservation.status = 2
   const offer = await Offer.findById(reservation.offerId)
-  offer.reservationNumber = reservation.reservationNumber +1
+  offer.reservationNumber = offer.reservationNumber +1
   await offer.save()
   await Notification.create({
     title : notifcationsBase[3].title,

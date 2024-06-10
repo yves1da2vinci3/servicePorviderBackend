@@ -19,7 +19,6 @@ const register = asyncHandler(async (req, res) => {
     isServiceProvider,
     phoneNumber,
     imageUrl,
-    pushToken,
   } = req.body;
   const requestBody ={
     ...req.body,
@@ -44,7 +43,7 @@ const register = asyncHandler(async (req, res) => {
       phoneNumber: phoneNumber,
       isServiceProvider: isServiceProvider,
       photoUrl: imageUrl,
-      pushToken: pushToken,
+      pushToken: requestBody.pushToken,
     });
     res.status(201).json({ message: "user created successfully" });
   } catch (error) {

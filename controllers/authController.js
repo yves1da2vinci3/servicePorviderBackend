@@ -8,6 +8,7 @@ import parseValidationError from "../utils/parseValidator.js";
 import User from "../models/userModel.js";
 import fs from "fs";
 import deleteFile from "../utils/deleteFile.js";
+import UserFavourite from "../models/userFavouriteModel.js";
 //@desc  create a new user
 //@right  PUBLIC
 //@ route  POST /api/auth/register
@@ -110,9 +111,22 @@ const login = asyncHandler(async (req, res) => {
     if (!(await user.matchPassword(password))) {
       return res.status(401).json({ message: "Invalid password" });
     }
-
-    // If the email and password are correct, you can handle successful login here
-    return res.status(200).json({ message: "Login successful", user });
+    if (user.isServiceProvider === false) {
+      let favouritesServicesIds = [];
+      const userFavourite = await UserFavourite.findOne({ userId: user._id });
+      if (userFavourite) {
+        favouritesServicesIds = userFavourite.Favourites.map((favourite) =>
+          favourite.offer.toString()
+        );
+      }
+      // If the email and password are correct, you can handle successful login here
+      return res
+        .status(200)
+        .json({ message: "Login successful", user, favouritesServicesIds });
+    } else {
+      // If the email and password are correct, you can handle successful login here
+      return res.status(200).json({ message: "Login successful", user });
+    }
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({ message: "Internal server error" });
@@ -154,4 +168,4 @@ const updateToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { register, login, editUser,updateToken };
+export { register, login, editUser, updateToken };

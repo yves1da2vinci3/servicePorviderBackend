@@ -139,31 +139,45 @@ const saveReservationMessages = asyncHandler(async (req, res) => {
       message,
     });
 
-
     // Fetch the reservation to get the provider and asker information
-    const reservation = await Reservation.findById(req.params.reservationId).populate('providerId').populate('askerId');
-    const recipient = senderId === reservation.providerId._id.toString() ? reservation.askerId : reservation.providerId;
-     const isTheUserOnline = onlineManager.getUserSocketId(recipient._id.toString());
+    const reservation = await Reservation.findById(req.params.reservationId)
+      .populate("providerId")
+      .populate("askerId");
+    const recipient =
+      senderId === reservation.providerId._id.toString()
+        ? reservation.askerId
+        : reservation.providerId;
+    const isTheUserOnline = onlineManager.getUserSocketId(
+      `${recipient._id.toString()}-${reservation._id.toString()}`
+    );
     if (isTheUserOnline) {
-        console.log("online")
-    }else{
-        console.log("offline")
-    }
-    // // Create a notification
-    // await Notification.create({
-    //     userId: recipient._id,
-    //     title: "New Message",
-    //     type: 2, // assuming 2 is the type for messages
-    //     content: `You have received a new message from ${senderId === reservation.providerId._id.toString() ? reservation.providerId.fullname : reservation.askerId.fullname}.`,
-    // });
+    //   console.log("online");
+    } else {
+    //   console.log("offline");
+    //   Create a notification
+      await Notification.create({
+        userId: recipient._id,
+        title: "New Message",
+        type: 6,
+        content: `You have received a new message from ${
+          senderId === reservation.providerId._id.toString()
+            ? reservation.providerId.fullname
+            : reservation.askerId.fullname
+        }.`,
+      });
 
-    // // Send push notification
-    // const pushMessage = generatePushNotificationMessge(
-    //     "New Message",
-    //     `You have received a new message from ${senderId === reservation.providerId._id.toString() ? reservation.providerId.fullname : reservation.askerId.fullname}.`,
-    //     recipient.pushToken
-    // );
-    // sendPushNotification([pushMessage]);
+      // Send push notification
+      const pushMessage = generatePushNotificationMessge(
+        "New Message",
+        `You have received a new message from ${
+          senderId === reservation.providerId._id.toString()
+            ? reservation.providerId.fullname
+            : reservation.askerId.fullname
+        }.`,
+        recipient.pushToken
+      );
+      sendPushNotification([pushMessage]);
+    }
 
     res.status(201).json({ message: "message sent" });
   } catch (err) {

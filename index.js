@@ -59,16 +59,16 @@ io.on("connection", (socket) => {
     socketId: socket.id,
   });
 
-  socket.on("map-user-to-socket", ({ socketId, userId }) => {
-    userPresenceManager.addUser(userId, socketId);
+  socket.on("map-user-to-socket", ({ socketId, userId ,reservationId }) => {
+    userPresenceManager.addUser(`${userId}-${reservationId}`, socketId);
     app.set("onlineUsers", userPresenceManager);
   });
 
   socket.on("disconnect", () => {
-    const userId = userPresenceManager.removeUser(socket.id);
-    if (userId) {
+    const reservationUserId = userPresenceManager.removeUser(socket.id);
+    if (reservationUserId) {
       app.set("onlineUsers", userPresenceManager);
-      console.log("User disconnected:", userId);
+      console.log("User disconnected:", reservationUserId);
     }
   });
 });

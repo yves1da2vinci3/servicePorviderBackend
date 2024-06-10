@@ -106,6 +106,7 @@ const saveReservationMessages = asyncHandler(async (req, res) => {
     const message = {
         senderId,
         content,
+        date : (new Date()).toISOString(),
         reservationId: req.params.reservationId,
     };
     try {

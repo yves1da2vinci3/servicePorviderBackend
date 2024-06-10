@@ -17,11 +17,10 @@ export function validateRegister(body) {
         'string.empty': 'image url cannot be empty',
         'any.required': 'image url is required',
       }),
-      pushToken: Joi.string().required()
+      pushToken: Joi.string()
       .messages({
         'string.base': 'pushToken should be a string',
         'string.empty': 'pushToken cannot be empty',
-        'any.required': 'pushToken is required',
       }),
     email: Joi.string().email().required()
       .messages({

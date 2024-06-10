@@ -74,6 +74,16 @@ export function validateLogin(body) {
     });
     return schema.validate(body);
   }
+export function validateUpdateToken(body) {
+    const schema = Joi.object({
+      pushToken: Joi.string()
+      .messages({
+        'string.base': 'pushToken should be a string',
+        'string.empty': 'pushToken cannot be empty',
+      }),
+    });
+    return schema.validate(body);
+  }
 
 
 

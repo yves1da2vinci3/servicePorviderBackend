@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import {
   validateLogin,
   validateRegister,
+  validateUpdateToken,
 } from "../validation/userValidator.js";
 import parseValidationError from "../utils/parseValidator.js";
 import User from "../models/userModel.js";
@@ -20,11 +21,11 @@ const register = asyncHandler(async (req, res) => {
     phoneNumber,
     imageUrl,
   } = req.body;
-  const requestBody ={
+  const requestBody = {
     ...req.body,
-    pushToken : req.body.pushToken ? req.body.pushToken : "token"
-  }
-  console.log("request body :",requestBody);
+    pushToken: req.body.pushToken ? req.body.pushToken : "token",
+  };
+  console.log("request body :", requestBody);
   try {
     const { error } = validateRegister(requestBody);
     console.log(error);
@@ -118,4 +119,39 @@ const login = asyncHandler(async (req, res) => {
   }
 });
 
-export { register, login, editUser };
+//@desc  update Token
+//@right  PUBLIC
+//@ route  POST /api/auth/:userId/token
+
+const updateToken = asyncHandler(async (req, res) => {
+  const { pushToken } = req.body;
+  try {
+    const { error } = validateUpdateToken(req.body);
+    if (error) {
+      const errorMessage = parseValidationError(error);
+      console.log(errorMessage);
+      return res.status(400).json({
+        message: errorMessage,
+      });
+    }
+    // Find the user by email
+    const user = await User.findById(req.params.userId);
+
+    if (user.pushToken !== pushToken) {
+      user.pushToken = pushToken;
+      await user.save();
+      return res
+        .status(200)
+        .json({ message: "pushToken change successful", user });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "pushToken change successful", user });
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+export { register, login, editUser,updateToken };

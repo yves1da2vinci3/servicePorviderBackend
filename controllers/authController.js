@@ -21,9 +21,10 @@ const register = asyncHandler(async (req, res) => {
     imageUrl,
     pushToken,
   } = req.body;
+  req.body.pushToken ? req.body.pushToken : "token";
+
   console.log("request body :", req.body);
   try {
-    req.body.pushToken ? req.body.pushToken : "token";
     const { error } = validateRegister(req.body);
     console.log(error);
     if (error) {

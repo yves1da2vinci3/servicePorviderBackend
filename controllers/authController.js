@@ -19,10 +19,11 @@ const register = asyncHandler(async (req, res) => {
     isServiceProvider,
     phoneNumber,
     imageUrl,
-    pushToken
+    pushToken,
   } = req.body;
   console.log("request body :", req.body);
   try {
+    req.body.pushToken ? req.body.pushToken : "token";
     const { error } = validateRegister(req.body);
     console.log(error);
     if (error) {
@@ -40,7 +41,7 @@ const register = asyncHandler(async (req, res) => {
       phoneNumber: phoneNumber,
       isServiceProvider: isServiceProvider,
       photoUrl: imageUrl,
-      pushToken:pushToken || "token"
+      pushToken: pushToken,
     });
     res.status(201).json({ message: "user created successfully" });
   } catch (error) {
@@ -53,7 +54,7 @@ const register = asyncHandler(async (req, res) => {
 //@ route   PUT  /api/auth/register
 
 const editUser = asyncHandler(async (req, res) => {
-  const { fullName, phoneNumber,imageUrl } = req.body;
+  const { fullName, phoneNumber, imageUrl } = req.body;
   console.log("request body :", req.body);
   try {
     const user = await User.findById(req.params.userId);

@@ -21,11 +21,13 @@ const register = asyncHandler(async (req, res) => {
     imageUrl,
     pushToken,
   } = req.body;
-  req.body.pushToken ? req.body.pushToken : "token";
-
-  console.log("request body :", req.body);
+  const requestBody ={
+    ...req.body,
+    pushToken : req.body.pushToken ? req.body.pushToken : "token"
+  }
+  console.log("request body :",requestBody);
   try {
-    const { error } = validateRegister(req.body);
+    const { error } = validateRegister(requestBody);
     console.log(error);
     if (error) {
       const errorMessage = parseValidationError(error);

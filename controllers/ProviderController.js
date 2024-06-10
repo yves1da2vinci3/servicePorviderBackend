@@ -106,8 +106,6 @@ const getReservations = asyncHandler(async (req, res) => {
       .where("providerId")
       .equals(req.params.userId)
       .populate("askerId");
-
-    console.log(reservations);
     res.status(200).json({ reservations });
   } catch (error) {
     console.log(error);

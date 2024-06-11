@@ -221,14 +221,14 @@ const CreateService = asyncHandler(async (req, res) => {
     const notificationMessage = generateNotificationContent(user, askerName);
     await Notification.create({
       userId: providerId,
-      title: notifcationsBase[notificationType].title,
-      type: notificationType,
+      title: notifcationsBase[2].title,
+      type: notifcationsBase[2].id,
       content: notificationMessage,
     });
 
     // Send push notification
     const pushMessage = generatePushNotificationMessge(
-      notifcationsBase[notificationType].title,
+      notifcationsBase[2].title,
       notificationMessage,
       user.pushToken
     );

@@ -198,7 +198,6 @@ const CreateService = asyncHandler(async (req, res) => {
     startTime,
     serviceDate,
     endTime,
-    notificationType,
     askerName,
     offerId,
   } = req.body;
